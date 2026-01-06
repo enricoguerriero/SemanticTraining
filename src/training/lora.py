@@ -163,20 +163,29 @@ def LoRA_validate(model,
             total_val_loss += val_outputs.loss.item()
 
             prompt_only_ids = []
+            prompt_only_masks = []
             for i in range(len(input_ids)):
                 split_index = input_len[i]
                 full_sequence = input_ids[i]
                 prompt_only = full_sequence[:split_index]
                 prompt_only_ids.append(prompt_only)
+                full_mask = attention_mask[i]
+                prompt_only_mask = full_mask[:split_index]
+                prompt_only_masks.append(prompt_only_mask)
             prompt_only_ids = pad_sequence(
                 prompt_only_ids, 
                 batch_first=True,
                 padding_value=151643  # PAD_TOKEN_ID for Qwen3VL
             ).to(device)
+            prompt_only_masks = pad_sequence(
+                prompt_only_masks,
+                batch_first=True,
+                padding_value=0
+            ).to(device)
 
             generated_ids = model.generate(
                 input_ids=prompt_only_ids,
-                attention_mask=attention_mask,
+                attention_mask=prompt_only_masks,
                 pixel_values_videos=pixel_values_videos,
                 video_grid_thw=video_grid_thw,
                 max_new_tokens=50
