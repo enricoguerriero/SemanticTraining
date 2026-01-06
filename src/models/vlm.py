@@ -37,3 +37,6 @@ class VisionLanguageModel(nn.Module):
             labels=labels
         )
         return outputs
+    
+    def generate(self, *args, **kwargs):
+        return self.backbone.generate(**args, **kwargs)
