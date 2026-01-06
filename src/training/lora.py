@@ -67,6 +67,12 @@ def LoRA_training(
         current_loss = 0.0
         optimizer.zero_grad()
 
+        LoRA_validate(model=model,
+                      val_loader=val_loader,
+                      device=device,
+                      logger=logger,
+                      wandb_run=wandb_run)
+
         for step, batch in enumerate(progress_bar):
 
             input_ids = batch['input_ids'].to(device)
