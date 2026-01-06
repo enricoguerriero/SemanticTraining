@@ -45,7 +45,7 @@ def LoRA_training(
         logger.debug(f"DataLoaders created: train size {len(train_loader)}, val size {len(val_loader)}")
 
     model.to(device)
-    model.gradient_checkpointing_enable()
+    model.model.backbone.gradient_checkpointing_enable()
     model.train()
 
     optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
