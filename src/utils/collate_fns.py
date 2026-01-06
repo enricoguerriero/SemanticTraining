@@ -32,7 +32,7 @@ def lora_collate_fn(batch):
     pixel_values_stacked = torch.stack(pixel_values_videos_list)
     video_grid_stacked = torch.stack(video_grid_thw_list) if video_grid_thw_list else None
 
-    prompt_len_tensor = torch.stack(prompt_len_list)
+    prompt_len_tensor = torch.tensor(prompt_len_list)
 
     return {
         'input_ids': input_ids_padded,
