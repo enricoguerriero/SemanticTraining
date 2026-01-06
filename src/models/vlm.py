@@ -27,3 +27,13 @@ class VisionLanguageModel(nn.Module):
         self.backbone = get_peft_model(self.backbone, lora_config)
         self.backbone.print_trainable_parameters()
         self.to(self.device)
+
+    def forward(self, input_ids, attention_mask, pixel_values_videos, video_grid_thw=None, labels=None):
+        outputs = self.backbone(
+            input_ids=input_ids,
+            attention_mask=attention_mask,
+            pixel_values_videos=pixel_values_videos,
+            video_grid_thw=video_grid_thw,
+            labels=labels
+        )
+        return outputs
