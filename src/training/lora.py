@@ -67,12 +67,6 @@ def LoRA_training(
         current_loss = 0.0
         optimizer.zero_grad()
 
-        LoRA_validate(model=model,
-                      val_loader=val_loader,
-                      device=device,
-                      logger=logger,
-                      wandb_run=wandb_run)
-
         for step, batch in enumerate(progress_bar):
 
             input_ids = batch['input_ids'].to(device)
@@ -201,7 +195,7 @@ def LoRA_validate(model,
 
             ground_truth_keywords_list = batch["ground_truth_keywords"]
             for gen_text, gt_keywords in zip(generated_text, ground_truth_keywords_list):
-                
+
                 gen_text = gen_text.split("assistant\n")[-1].strip()
                 logger.debug(f"Generated text: {gen_text}")
                 logger.debug(f"Ground truth keywords: {gt_keywords}")
