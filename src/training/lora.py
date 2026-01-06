@@ -73,7 +73,7 @@ def LoRA_training(
             attention_mask = batch['attention_mask'].to(device)
             pixel_values_videos = batch['pixel_values_videos'].to(device)
             labels = batch['labels'].to(device)
-            video_grid_thw = batch.get('video_grid_thw', None)
+            video_grid_thw = batch['video_grid_thw'].to(device)
 
             outputs = model(
                 input_ids=input_ids,

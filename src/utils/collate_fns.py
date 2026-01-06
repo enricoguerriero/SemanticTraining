@@ -29,8 +29,8 @@ def lora_collate_fn(batch):
     for i, prompt_len in enumerate(prompt_len_list):
         labels[i, :prompt_len] = -100
 
-    pixel_values_stacked = torch.cat(pixel_values_videos_list)
-    video_grid_stacked = torch.cat(video_grid_thw_list) if video_grid_thw_list else None
+    pixel_values_stacked = torch.stack(pixel_values_videos_list)
+    video_grid_stacked = torch.stack(video_grid_thw_list) if video_grid_thw_list else None
 
     return {
         'input_ids': input_ids_padded,
