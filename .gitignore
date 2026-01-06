@@ -1,0 +1,7 @@
+/.venv
+/data
+/wandb
+__pycache__/
+/outputs
+/models
+/checkpoints

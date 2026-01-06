@@ -1,0 +1,23 @@
+prompt: "You are in a neonatal resuscitation scenario. Detect what is happening in the video."
+
+train_data: "data/train.csv"
+val_data: "data/validation.csv"
+enrichment_data: "src/data/enrichment.csv"
+num_frames: null
+
+lora_r: 8
+lora_alpha: 16
+lora_dropout: 0.1
+lora_target_modules:
+  - "q_proj"
+  - "v_proj"
+  - "up_proj"
+  - "down_proj"
+
+batch_size: 1
+num_epochs: 3
+learning_rate: 0.0001
+gradient_accumulation_steps: 16
+validation_interval: 100
+checkpoint_path: "checkpoints"
+save_path: "models"

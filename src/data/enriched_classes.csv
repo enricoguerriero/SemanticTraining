@@ -1,0 +1,9 @@
+id, classes enriched, descriptions
+0, No Newborn, A static view of a prepared resuscitation table with the necessary equipment. No subject is present on the table.
+1, Baby visible, A newborn infant lies on a resuscitation table. The medical team is observing the patient; no active manual resuscitation intervention is taking place.
+2, CPAP, The newborn infant is receiving respiratory support through Continuous Positive Airway Pressure (CPAP) delivered via a face mask. The medical team is closely monitoring the infant's condition and holding the mask over the infant's face.
+3, PPV, The newborn infant is receiving positive pressure ventilation (PPV) through a face mask. The medical team is actively involved in providing respiratory support through a finger movement over the face mask.
+4, Suction, The newborn infant is undergoing suctioning to clear the airways. A medical professional is using a suction catheter inserted into the infant's mouth or nose to remove secretions.
+5, Stimulation extremities, The newborn infant is receiving tactile stimulation to encourage breathing and circulation. A medical professional is gently rubbing or flicking the infant's feet or hands.
+6, Stimulation backnates, The newborn infant is receiving tactile stimulation to encourage breathing and circulation. A medical professional is gently rubbing or patting the infant's back or nates.
+7, Stimulation trunk, The newborn infant is receiving tactile stimulation to encourage breathing and circulation. A medical professional is gently rubbing or patting the infant's chest or abdomen.
