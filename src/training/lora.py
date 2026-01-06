@@ -291,6 +291,9 @@ if __name__ == "__main__":
         learning_rate=config.get("learning_rate", 1e-4),
         gradient_accumulation_steps=config.get("gradient_accumulation_steps", 16),
         device=device,
+        validation_interval=config.get("validation_interval", None),
+        checkpoint_path=config.get("checkpoint_path", None),
+        save_path=config.get("save_path", None),
         logger=logger,
         wandb_run=wandb_run
     )
