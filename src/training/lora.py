@@ -197,11 +197,12 @@ def LoRA_validate(model,
                 max_new_tokens=50
             )
 
-            generated_text = model.processor.batch_decode(generated_ids, skip_special_tokens=True).split("assistant\n")[-1].strip()
+            generated_text = model.processor.batch_decode(generated_ids, skip_special_tokens=True)
 
             ground_truth_keywords_list = batch["ground_truth_keywords"]
             for gen_text, gt_keywords in zip(generated_text, ground_truth_keywords_list):
-
+                
+                gen_text = gen_text.split("assistant\n")[-1].strip()
                 logger.debug(f"Generated text: {gen_text}")
                 logger.debug(f"Ground truth keywords: {gt_keywords}")
                 
