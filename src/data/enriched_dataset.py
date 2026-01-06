@@ -104,8 +104,12 @@ class EnrichedDataset(ClipDataset):
             }
         ]
         user_prompt_text = self.processor.apply_chat_template(user_prompt_template, add_generation_prompt=True)
-        user_prompt_ids = self.processor.tokenizer(user_prompt_text, return_tensors="pt").input_ids
-        prompt_len = user_prompt_ids.shape[1]
+        user_prompt_outputs = self.processor(
+            videos=frames,
+            text=user_prompt_text,
+            return_tensors="pt",
+            video_metadata={"fps": fps, "total_num_frames": total_frames})
+        prompt_len = user_prompt_outputs.input_ids.shape[1]
         prompt_template = [
             {
                 "role": "user",
