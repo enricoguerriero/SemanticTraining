@@ -1,5 +1,5 @@
 import torch
-from src.utils.collate_fns import pad_sequence
+from torch.nn.utils.rnn import pad_sequence
 
 def lora_collate_fn(batch):
     
