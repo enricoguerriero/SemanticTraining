@@ -135,7 +135,8 @@ def LoRA_validate(model,
                   val_loader,
                   device: str = "cuda",
                   logger = None,
-                  wandb_run = None):
+                  wandb_run = None,
+                  val_metrics: bool = False):
     model.eval()
     total_val_loss = 0.0
     precision_totals = {}
@@ -162,68 +163,73 @@ def LoRA_validate(model,
             )
             total_val_loss += val_outputs.loss.item()
 
-            prompt_only_ids = []
-            prompt_only_masks = []
-            for i in range(len(input_ids)):
-                split_index = input_len[i]
-                full_sequence = input_ids[i]
-                prompt_only = full_sequence[:split_index]
-                prompt_only_ids.append(prompt_only)
-                full_mask = attention_mask[i]
-                prompt_only_mask = full_mask[:split_index]
-                prompt_only_masks.append(prompt_only_mask)
-            prompt_only_ids = pad_sequence(
-                prompt_only_ids, 
-                batch_first=True,
-                padding_value=151643  # PAD_TOKEN_ID for Qwen3VL
-            ).to(device)
-            prompt_only_masks = pad_sequence(
-                prompt_only_masks,
-                batch_first=True,
-                padding_value=0
-            ).to(device)
+            if val_metrics:
+                prompt_only_ids = []
+                prompt_only_masks = []
+                for i in range(len(input_ids)):
+                    split_index = input_len[i]
+                    full_sequence = input_ids[i]
+                    prompt_only = full_sequence[:split_index]
+                    prompt_only_ids.append(prompt_only)
+                    full_mask = attention_mask[i]
+                    prompt_only_mask = full_mask[:split_index]
+                    prompt_only_masks.append(prompt_only_mask)
+                prompt_only_ids = pad_sequence(
+                    prompt_only_ids, 
+                    batch_first=True,
+                    padding_value=151643  # PAD_TOKEN_ID for Qwen3VL
+                ).to(device)
+                prompt_only_masks = pad_sequence(
+                    prompt_only_masks,
+                    batch_first=True,
+                    padding_value=0
+                ).to(device)
 
-            generated_ids = model.generate(
-                input_ids=prompt_only_ids,
-                attention_mask=prompt_only_masks,
-                pixel_values_videos=pixel_values_videos,
-                video_grid_thw=video_grid_thw,
-                max_new_tokens=50
-            )
+                generated_ids = model.generate(
+                    input_ids=prompt_only_ids,
+                    attention_mask=prompt_only_masks,
+                    pixel_values_videos=pixel_values_videos,
+                    video_grid_thw=video_grid_thw,
+                    max_new_tokens=50
+                )
 
-            generated_text = model.processor.batch_decode(generated_ids, skip_special_tokens=True)
+                generated_text = model.processor.batch_decode(generated_ids, skip_special_tokens=True)
 
-            ground_truth_keywords_list = batch["ground_truth_keywords"]
-            for gen_text, gt_keywords in zip(generated_text, ground_truth_keywords_list):
+                ground_truth_keywords_list = batch["ground_truth_keywords"]
+                for gen_text, gt_keywords in zip(generated_text, ground_truth_keywords_list):
 
-                gen_text = gen_text.split("assistant\n")[-1].strip()
-                logger.debug(f"Generated text: {gen_text}")
-                logger.debug(f"Ground truth keywords: {gt_keywords}")
-                
-                precision_dict = check_precision_in_text(gen_text, gt_keywords)
-                recall_dict = check_recall_in_text(gen_text, gt_keywords)
+                    gen_text = gen_text.split("assistant\n")[-1].strip()
+                    logger.debug(f"Generated text: {gen_text}")
+                    logger.debug(f"Ground truth keywords: {gt_keywords}")
+                    
+                    precision_dict = check_precision_in_text(gen_text, gt_keywords)
+                    recall_dict = check_recall_in_text(gen_text, gt_keywords)
 
-                for key, value in precision_dict.items():
-                    precision_totals[key] = precision_totals.get(key, 0) + value
-                    precision_counts[key] = precision_counts.get(key, 0) + 1
-                for key, value in recall_dict.items():
-                    recall_totals[key] = recall_totals.get(key, 0) + value
-                    recall_counts[key] = recall_counts.get(key, 0) + 1
+                    for key, value in precision_dict.items():
+                        precision_totals[key] = precision_totals.get(key, 0) + value
+                        precision_counts[key] = precision_counts.get(key, 0) + 1
+                    for key, value in recall_dict.items():
+                        recall_totals[key] = recall_totals.get(key, 0) + value
+                        recall_counts[key] = recall_counts.get(key, 0) + 1
 
     avg_val_loss = total_val_loss / len(val_loader)
-    precision_avg = {k: v / precision_counts.get(k, 1) for k, v in precision_totals.items()}
-    recall_avg = {k: v / recall_counts.get(k, 1) for k, v in recall_totals.items()}
-    logger.info(f"Validation Loss: {avg_val_loss}")
-    logger.debug(f"Precision per class: {precision_avg}")
-    logger.debug(f"Recall per class: {recall_avg}")
+    if val_metrics:
+        precision_avg = {k: v / precision_counts.get(k, 1) for k, v in precision_totals.items()}
+        recall_avg = {k: v / recall_counts.get(k, 1) for k, v in recall_totals.items()}
+    if logger:
+        logger.info(f"Validation Loss: {avg_val_loss}")
+        if val_metrics:
+            logger.debug(f"Precision per class: {precision_avg}")
+            logger.debug(f"Recall per class: {recall_avg}")
     final_metrics = {}
-    all_classes = set(precision_totals.keys()).union(set(recall_totals.keys()))
-    for cls in all_classes:
-        final_metrics.update({
-            f"{cls}/Precision": precision_avg.get(cls, 0.0),
-            f"{cls}/Recall": recall_avg.get(cls, 0.0),
-            f"{cls}/F1-Score": (2 * precision_avg.get(cls, 0.0) * recall_avg.get(cls, 0.0) / (precision_avg.get(cls, 0.0) + recall_avg.get(cls, 0.0) + 1e-8)) if (precision_avg.get(cls, 0.0) + recall_avg.get(cls, 0.0)) > 0 else 0.0
-        })
+    if val_metrics:
+        all_classes = set(precision_totals.keys()).union(set(recall_totals.keys()))
+        for cls in all_classes:
+            final_metrics.update({
+                f"{cls}/Precision": precision_avg.get(cls, 0.0),
+                f"{cls}/Recall": recall_avg.get(cls, 0.0),
+                f"{cls}/F1-Score": (2 * precision_avg.get(cls, 0.0) * recall_avg.get(cls, 0.0) / (precision_avg.get(cls, 0.0) + recall_avg.get(cls, 0.0) + 1e-8)) if (precision_avg.get(cls, 0.0) + recall_avg.get(cls, 0.0)) > 0 else 0.0
+            })
     final_metrics["Validation Loss"] = avg_val_loss
     if wandb_run:
         wandb_run.log(final_metrics)
