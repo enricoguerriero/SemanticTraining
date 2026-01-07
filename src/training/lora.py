@@ -122,7 +122,8 @@ def LoRA_training(
                       val_loader=val_loader,
                       device=device,
                       logger=logger,
-                      wandb_run=wandb_run)
+                      wandb_run=wandb_run,
+                      val_metrics=True)
 
     if save_path:
         final_file = f"{save_path}/{model.model_name}_lora_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pt"
@@ -190,7 +191,7 @@ def LoRA_validate(model,
                     attention_mask=prompt_only_masks,
                     pixel_values_videos=pixel_values_videos,
                     video_grid_thw=video_grid_thw,
-                    max_new_tokens=50
+                    max_new_tokens=100
                 )
 
                 generated_text = model.processor.batch_decode(generated_ids, skip_special_tokens=True)
