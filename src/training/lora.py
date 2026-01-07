@@ -46,6 +46,7 @@ def LoRA_training(
 
     model.to(device)
     model.backbone.gradient_checkpointing_enable()
+    model.backbone.enable_input_require_grads()
     model.train()
 
     optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
