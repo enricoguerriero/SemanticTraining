@@ -46,10 +46,10 @@ def LoRA_training(
 
     model.to(device)
     model.backbone.gradient_checkpointing_enable()
-    model.backbone.enable_input_require_grads()
-    def make_inputs_require_grad(module, input, output):
-        output.requires_grad_(True)
-    model.backbone.get_input_embeddings().register_forward_hook(make_inputs_require_grad)
+    # model.backbone.enable_input_require_grads()
+    # def make_inputs_require_grad(module, input, output):
+    #     output.requires_grad_(True)
+    # model.backbone.get_input_embeddings().register_forward_hook(make_inputs_require_grad)
     model.train()
 
     optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)

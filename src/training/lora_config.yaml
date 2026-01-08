@@ -15,7 +15,7 @@ lora_target_modules:
   - "down_proj"
 
 batch_size: 1
-num_epochs: 3
+num_epochs: 1
 learning_rate: 0.0001
 gradient_accumulation_steps: 16
 validation_interval: 100
