@@ -70,6 +70,6 @@ def check_recall_in_text(pred_text, keywords):
                     class_detected = True
                     break
         
-        recall_dict[gt] = 1 if class_detected else 0
+        recall_dict[broad_category] = 1 if class_detected else 0
         
     return recall_dict

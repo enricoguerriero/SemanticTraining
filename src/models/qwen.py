@@ -13,3 +13,13 @@ class Qwen3VL(VisionLanguageModel):
         self.backbone = Qwen3VLForConditionalGeneration.from_pretrained(backbone_id)
         self.processor = AutoProcessor.from_pretrained(backbone_id)
     
+    def generate(self, *args):
+        return self.backbone.generate(*args, 
+                                      greedy=False,
+                                      top_p=0.8,
+                                      top_k=20,
+                                      temperature=0.7,
+                                      repetition_penalty=1.0,
+                                      presence_penalty=1.5,
+                                      out_seq_length=16384
+                                      ) #from HF qwen3vl

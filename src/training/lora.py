@@ -194,8 +194,7 @@ def LoRA_validate(model,
                     input_ids=prompt_only_ids,
                     attention_mask=prompt_only_masks,
                     pixel_values_videos=pixel_values_videos,
-                    video_grid_thw=video_grid_thw,
-                    max_new_tokens=100
+                    video_grid_thw=video_grid_thw
                 )
 
                 generated_text = model.processor.batch_decode(generated_ids, skip_special_tokens=True)
