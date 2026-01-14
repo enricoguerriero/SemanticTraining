@@ -13,8 +13,11 @@ class Qwen3VL(VisionLanguageModel):
         self.backbone = Qwen3VLForConditionalGeneration.from_pretrained(backbone_id)
         self.processor = AutoProcessor.from_pretrained(backbone_id)
     
-    def generate(self, *args):
-        return self.backbone.generate(*args, 
+    def generate(self, input_ids, attention_mask, pixel_values_videos, video_grid_thw):
+        return self.backbone.generate(input_ids=input_ids,
+                                      attention_mask=attention_mask,
+                                      pixel_values_videos=pixel_values_videos,
+                                      video_grid_thw=video_grid_thw, 
                                       greedy=False,
                                       top_p=0.8,
                                       top_k=20,
