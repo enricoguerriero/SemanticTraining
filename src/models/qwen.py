@@ -18,11 +18,10 @@ class Qwen3VL(VisionLanguageModel):
                                       attention_mask=attention_mask,
                                       pixel_values_videos=pixel_values_videos,
                                       video_grid_thw=video_grid_thw, 
-                                      greedy=False,
                                       top_p=0.8,
                                       top_k=20,
                                       temperature=0.7,
                                       repetition_penalty=1.0,
-                                      presence_penalty=1.5,
-                                      out_seq_length=16384
+                                      max_new_tokens=150,
+                                      do_sample=False
                                       ) #from HF qwen3vl
