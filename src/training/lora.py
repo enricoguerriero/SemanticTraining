@@ -26,7 +26,8 @@ def LoRA_training(
         checkpoint_path: str = None,
         save_path: str = None,
         logger = None,
-        wandb_run = None
+        wandb_run = None,
+        lora_config: dict = None
     ):
     
     train_loader = DataLoader(
@@ -110,17 +111,6 @@ def LoRA_training(
                                   device=device,
                                   logger=logger,
                                   wandb_run=wandb_run)
-                    if checkpoint_path:
-                        ckpt_file = f"{checkpoint_path}/{model_name}_lora_checkpoint_step_{global_step}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pt"
-                        torch.save(model.state_dict(), ckpt_file)
-                        if logger:
-                            logger.info(f"Saved checkpoint at {ckpt_file}")
-        
-        if checkpoint_path:
-            epoch_file = f"{checkpoint_path}/{model.model_name}_lora_epoch_{epoch + 1}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pt"
-            torch.save(model.state_dict(), epoch_file)
-            if logger:
-                logger.info(f"Saved model after epoch {epoch + 1} at {epoch_file}")
 
         LoRA_validate(model=model,
                       val_loader=val_loader,
@@ -131,9 +121,18 @@ def LoRA_training(
 
     if save_path:
         final_file = f"{save_path}/{model.model_name}_lora_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pt"
-        torch.save(model.state_dict(), final_file)
+        
+        # Save model state_dict with config
+        checkpoint = {
+            'model_state_dict': model.state_dict(),
+            'model_name': model.model_name,
+            'backbone_id': model.backbone_id,
+            'lora_config': lora_config
+        }
+        
+        torch.save(checkpoint, final_file)
         if logger:
-            logger.info(f"Saved final model at {final_file}")
+            logger.info(f"Saved final model with config at {final_file}")
 
 
 def LoRA_validate(model,
@@ -294,13 +293,20 @@ if __name__ == "__main__":
     )
     logger.info(f"Validation dataset loaded with {len(val_dataset)} samples.")
 
+    lora_config = {
+        'lora_r': config.get("lora_r", 8),
+        'lora_alpha': config.get("lora_alpha", 16),
+        'lora_dropout': config.get("lora_dropout", 0.1),
+        'lora_target_modules': config.get("lora_target_modules", None)
+    }
+    
     model._inject_lora_layers(
-        r=config.get("lora_r", 8),
-        lora_alpha=config.get("lora_alpha", 16),
-        lora_dropout=config.get("lora_dropout", 0.1),
-        target_modules=config.get("lora_target_modules", None)
+        r=lora_config['lora_r'],
+        lora_alpha=lora_config['lora_alpha'],
+        lora_dropout=lora_config['lora_dropout'],
+        target_modules=lora_config['lora_target_modules']
     )
-    logger.debug(f"LoRA layers injected into the model: {config.get('lora_target_modules', None)}")
+    logger.debug(f"LoRA layers injected into the model: {lora_config['lora_target_modules']}")
     
     LoRA_training(
         model=model,
@@ -315,7 +321,8 @@ if __name__ == "__main__":
         checkpoint_path=config.get("checkpoint_path", None),
         save_path=config.get("save_path", None),
         logger=logger,
-        wandb_run=wandb_run
+        wandb_run=wandb_run,
+        lora_config=lora_config
     )
 
     logger.info("LoRA training completed.")

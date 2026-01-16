@@ -74,6 +74,7 @@ class EnrichedDataset(ClipDataset):
     
     def _enrich_labels(self, video_path):
         labels = self._extract_labels(self.target_classes, video_path)
+        self.raw_labels[video_path] = labels
         description = self._map_labels_to_descriptions(self.enrichment_data, labels)
         return description, labels
         
@@ -81,6 +82,7 @@ class EnrichedDataset(ClipDataset):
     def _build_labels(self):
         enriched_descriptions = {}
         labels = {}
+        self.raw_labels = {}
         for idx, row in self.data.iterrows():
             video_path = row['video_path']
             enriched_description, label = self._enrich_labels(video_path)
@@ -138,7 +140,9 @@ class EnrichedDataset(ClipDataset):
             "attention_mask": inputs.attention_mask.squeeze(0),
             "labels": self.enriched_descriptions[video_path],
             "prompt_len": prompt_len,
-            "ground_truth_keywords": self.ground_truth_labels[video_path]
+            "ground_truth_keywords": self.ground_truth_labels[video_path],
+            "raw_labels": self.raw_labels[video_path],
+            "video_path": video_path
         }
         if "video_grid_thw" in inputs:
             item["video_grid_thw"] = inputs.video_grid_thw.squeeze(0)

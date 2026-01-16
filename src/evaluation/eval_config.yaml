@@ -1,0 +1,7 @@
+prompt: "You are in a neonatal resuscitation scenario. Detect what is happening in the video."
+
+test_data: "data/validation_filtered.csv"
+enrichment_data: "src/data/enrichment.csv"
+num_frames: null
+
+batch_size: 1
